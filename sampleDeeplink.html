@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Zelle&reg; | Find Your Bank</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --zelle-purple: #6D1ED4;
+    --zelle-purple-dark: #5A17B0;
+    --zelle-footer: #4B1091;
+  }
+  html, body { height: 100%; }
+  body {
+    font-family: "Trebuchet MS", "Segoe UI", Arial, sans-serif;
+    background: var(--zelle-purple);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  /* Header */
+  .top-bar {
+    background: var(--zelle-purple);
+    padding: 22px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .top-bar .inner {
+    width: 100%;
+    max-width: 1040px;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 22px;
+  }
+  .zelle-logo {
+    font-weight: 800;
+    font-size: 34px;
+    letter-spacing: -1px;
+    font-style: italic;
+    color: #fff;
+  }
+  .zelle-logo sup { font-size: 12px; font-style: normal; top: -14px; }
+  .divider { width: 1px; height: 36px; background: rgba(255,255,255,0.45); }
+  .page-title { font-size: 30px; font-weight: 400; }
+
+  /* Main */
+  .main {
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 36px 24px 60px;
+  }
+  .search-wrap {
+    width: 100%;
+    max-width: 1040px;
+    position: relative;
+    margin-bottom: 70px;
+  }
+  .search-box {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(255,255,255,0.6);
+    color: #fff;
+    font-size: 26px;
+    padding: 10px 10px 14px 48px;
+    outline: none;
+    font-family: inherit;
+  }
+  .search-box::placeholder { color: rgba(255,255,255,0.75); }
+  .search-icon {
+    position: absolute;
+    left: 6px; top: 8px;
+    width: 26px; height: 26px;
+    border: 3px solid rgba(255,255,255,0.85);
+    border-radius: 50%;
+  }
+  .search-icon::after {
+    content: "";
+    position: absolute;
+    width: 3px; height: 12px;
+    background: rgba(255,255,255,0.85);
+    transform: rotate(-45deg);
+    right: -7px; bottom: -8px;
+    border-radius: 2px;
+  }
+
+  /* Results dropdown */
+  .results {
+    position: absolute;
+    top: 64px; left: 0; right: 0;
+    background: #fff;
+    border-radius: 6px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    overflow: hidden;
+    display: none;
+    z-index: 5;
+  }
+  .results.show { display: block; }
+  .result-item {
+    padding: 16px 22px;
+    color: #2b2b2b;
+    font-size: 18px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    transition: background 0.15s;
+  }
+  .result-item:last-child { border-bottom: none; }
+  .result-item:hover { background: #f3edfb; }
+  .no-result {
+    padding: 16px 22px; color: #777; font-size: 16px; font-style: italic;
+  }
+
+  .hero { text-align: center; max-width: 1040px; }
+  .hero h1 { font-size: 64px; font-weight: 400; margin-bottom: 36px; }
+  .hero p {
+    font-size: 19px; line-height: 1.6; max-width: 1020px;
+    margin: 0 auto 40px; color: rgba(255,255,255,0.95);
+  }
+  .learn-more {
+    background: rgba(255,255,255,0.18);
+    color: #fff; border: none;
+    padding: 16px 34px; border-radius: 4px;
+    font-size: 14px; letter-spacing: 1px; font-weight: 600;
+    cursor: pointer; text-transform: uppercase;
+  }
+
+  /* Footer */
+  .footer {
+    flex-shrink: 0;
+    background: var(--zelle-footer);
+    padding: 36px 24px 50px;
+  }
+  .footer .inner { max-width: 1040px; margin: 0 auto; }
+  .footer-top { display: flex; align-items: center; gap: 34px; flex-wrap: wrap; margin-bottom: 26px; }
+  .footer-top .zelle-logo { font-size: 26px; }
+  .footer-links { display: flex; gap: 28px; flex-wrap: wrap; }
+  .footer-links a { color: #fff; text-decoration: none; font-size: 15px; }
+  .footer-social { margin-left: auto; display: flex; gap: 16px; font-size: 18px; }
+  .footer-social span { opacity: 0.9; }
+  .footer small { display: block; color: rgba(255,255,255,0.8); font-size: 12.5px; line-height: 1.7; margin-top: 14px; }
+
+  /* Modal */
+  .overlay {
+    position: fixed; inset: 0;
+    background: rgba(40, 10, 70, 0.72);
+    display: none;
+    align-items: center; justify-content: center;
+    padding: 20px; z-index: 50;
+  }
+  .overlay.show { display: flex; }
+  .modal {
+    background: #fff;
+    width: 100%; max-width: 515px;
+    border-radius: 2px;
+    overflow: hidden;
+    color: #1b1b1b;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    animation: pop 0.18s ease-out;
+  }
+  @keyframes pop { from { transform: scale(0.94); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .modal-header {
+    background: var(--zelle-purple);
+    color: #fff;
+    text-align: center;
+    font-size: 34px;
+    padding: 26px 20px;
+    position: relative;
+  }
+  .modal-close {
+    position: absolute; top: 12px; right: 18px;
+    background: none; border: none; color: #fff;
+    font-size: 26px; cursor: pointer; line-height: 1;
+  }
+  .modal-body { padding: 34px 40px 40px; text-align: center; }
+  .bank-logo { margin: 6px 0 26px; display: flex; justify-content: center; align-items: center; }
+
+  /* TD Bank logo */
+  .td-logo { display: inline-flex; align-items: center; gap: 10px; }
+  .td-box {
+    background: #4caf3f; color: #fff; font-weight: 800;
+    font-size: 26px; padding: 6px 10px; border-radius: 3px; letter-spacing: 1px;
+  }
+  .td-text { color: #1d5631; font-weight: 800; font-size: 28px; }
+
+  /* PNC logo */
+  .pnc-logo { display: inline-flex; align-items: center; gap: 10px; }
+  .pnc-mark {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: #f58025; display: inline-flex; align-items: center; justify-content: center;
+  }
+  .pnc-mark svg { width: 26px; height: 26px; }
+  .pnc-text { color: #00558c; font-weight: 800; font-size: 32px; letter-spacing: 1px; }
+
+  .modal-body h2 { font-size: 23px; font-weight: 800; line-height: 1.35; margin-bottom: 22px; color: #111; }
+  .modal-body .whats-next { font-weight: 800; font-size: 17px; margin-bottom: 14px; }
+  .modal-body ol { text-align: left; margin: 0 auto; max-width: 400px; padding-left: 20px; }
+  .modal-body ol li { font-size: 16px; line-height: 1.5; margin-bottom: 10px; }
+  .modal-body p.desc { font-size: 18px; line-height: 1.55; margin-bottom: 20px; color: #222; }
+  .modal-body p.fineprint { font-size: 13px; line-height: 1.6; color: #555; margin-bottom: 28px; }
+  .continue-btn {
+    display: block;
+    width: 100%;
+    background: var(--zelle-purple);
+    color: #fff; border: none;
+    padding: 20px; font-size: 17px; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase;
+    cursor: pointer; border-radius: 2px;
+    text-align: center; text-decoration: none;
+  }
+  .continue-btn:hover { background: var(--zelle-purple-dark); }
+</style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="top-bar">
+    <div class="inner">
+      <span class="zelle-logo">zelle<sup>&reg;</sup></span>
+      <span class="divider"></span>
+      <span class="page-title">Find Your Bank</span>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="search-wrap">
+      <span class="search-icon"></span>
+      <input type="text" id="search" class="search-box" placeholder="Search" autocomplete="off" />
+      <div class="results" id="results"></div>
+    </div>
+
+    <section class="hero">
+      <h1>What is Zelle<sup style="font-size:26px">&reg;</sup>?</h1>
+      <p>Zelle&reg; is a fast, safe and easy way to send and receive money directly between almost any bank accounts in the U.S., typically within minutes.1 With just an email address or U.S. mobile phone number, you can send money to and receive money from friends, family and others you trust.</p>
+      <button class="learn-more">Learn More</button>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="inner">
+      <div class="footer-top">
+        <span class="zelle-logo">zelle<sup>&reg;</sup></span>
+        <nav class="footer-links">
+          <a href="#">Contact Us</a>
+          <a href="#">Partners</a>
+          <a href="#">Press</a>
+          <a href="#">Legal</a>
+          <a href="#">Your Privacy Rights</a>
+        </nav>
+        <div class="footer-social">
+          <span>&#120143;</span><span>&#9673;</span><span>&#9632;</span><span>&#9654;</span><span>in</span>
+        </div>
+      </div>
+      <small>1Must have a bank account in the U.S. to use Zelle&reg;. Transactions typically occur in minutes when the recipient's email address or U.S. mobile number is already enrolled with Zelle&reg;.</small>
+      <small>&copy;2026 Early Warning Services, LLC. All rights reserved. Zelle and the Zelle related marks are property of Early Warning Services, LLC. Other product and company names mentioned herein are the property of their respective owners.</small>
+    </div>
+  </footer>
+
+  <!-- TD Bank Modal -->
+  <div class="overlay" id="tdOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        Great News!
+        <button class="modal-close" data-close>&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="bank-logo">
+          <span class="td-logo">
+            <span class="td-box">TD</span>
+            <span class="td-text">Bank</span>
+          </span>
+        </div>
+        <h2>TD Bank N.A. offers Zelle&reg; QR codes, simply scan in your banking app to pay.</h2>
+        <div class="whats-next">What's next?</div>
+        <ol>
+          <li>Close your browser</li>
+          <li>Open and log into your banking app</li>
+          <li>Go to "Send money with Zelle&reg;", tap the "QR Code" icon to scan and send money.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <!-- PNC Bank Modal -->
+  <div class="overlay" id="pncOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        Great News!
+        <button class="modal-close" data-close>&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="bank-logo">
+          <span class="pnc-logo">
+            <span class="pnc-mark">
+              <svg viewBox="0 0 24 24" fill="none">
+                <polygon points="7,5 7,19 18,12" fill="#fff"/>
+              </svg>
+            </span>
+            <span class="pnc-text">PNC</span>
+          </span>
+        </div>
+        <h2>PNC Bank offers Zelle QR Codes.</h2>
+        <p class="desc">To continue sending money with Zelle QR Code, just log into your banking app. It's that simple.</p>
+        <p class="fineprint">By selecting "Continue to your bank", you will be taken to an external interface with different privacy and information security policy. Zelle&reg; is not responsible for and does not endorse the products, services or content that is offered or expressed.</p>
+        <a class="continue-btn" id="pncContinue"
+           href="https://gowtham-fiserv.github.io/zellesdk-deeplinking/sampleDeeplink.html?data=eyJuYW1lIjoiVGF3bnkiLCJ0b2tlbiI6ImZpa3ZhQGZpc2Vydi5jb20ifQ=="
+           target="_blank" rel="noopener">Continue to your bank</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var BANKS = [
+      { name: "TD Bank N.A.", modal: "tdOverlay" },
+      { name: "PNC Bank", modal: "pncOverlay" }
+    ];
+
+    var searchEl = document.getElementById("search");
+    var resultsEl = document.getElementById("results");
+
+    function renderResults(query) {
+      var q = query.trim().toLowerCase();
+      if (q === "") { resultsEl.classList.remove("show"); resultsEl.innerHTML = ""; return; }
+
+      var matches = BANKS.filter(function (b) { return b.name.toLowerCase().indexOf(q) !== -1; });
+      resultsEl.innerHTML = "";
+
+      if (matches.length === 0) {
+        var none = document.createElement("div");
+        none.className = "no-result";
+        none.textContent = "No banks found";
+        resultsEl.appendChild(none);
+      } else {
+        matches.forEach(function (b) {
+          var item = document.createElement("div");
+          item.className = "result-item";
+          item.textContent = b.name;
+          item.addEventListener("click", function () {
+            openModal(b.modal);
+            resultsEl.classList.remove("show");
+          });
+          resultsEl.appendChild(item);
+        });
+      }
+      resultsEl.classList.add("show");
+    }
+
+    searchEl.addEventListener("input", function (e) { renderResults(e.target.value); });
+
+    function openModal(id) { document.getElementById(id).classList.add("show"); }
+    function closeModals() {
+      document.querySelectorAll(".overlay").forEach(function (o) { o.classList.remove("show"); });
+    }
+
+    document.querySelectorAll("[data-close]").forEach(function (btn) {
+      btn.addEventListener("click", closeModals);
+    });
+    document.querySelectorAll(".overlay").forEach(function (ov) {
+      ov.addEventListener("click", function (e) { if (e.target === ov) closeModals(); });
+    });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeModals(); });
+
+    // "Continue to your bank" is a plain <a href> to the verified https deep link
+    // on gowtham-fiserv.github.io. When this landing page is hosted on a DIFFERENT
+    // domain, tapping it is a cross-domain navigation, so Chrome checks the target's
+    // assetlinks.json and opens the verified app (App Links verification).
+  </script>
+</body>
+</html>
